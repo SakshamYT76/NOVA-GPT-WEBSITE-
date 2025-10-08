@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaGPT - Complete AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00c3ff;
+            --secondary: #9d4edd;
+            --accent: #ff6b6b;
+            --dark: #0f0c29;
+            --darker: #09061b;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --ghibli-sky: #a5b4fc;
+            --ghibli-cloud: #f0f9ff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            --neon-glow: 0 0 10px rgba(0, 195, 255, 0.7), 0 0 20px rgba(0, 195, 255, 0.5);
+            --transition: all 0.3s ease;
+        }
+
+        .light-mode {
+            --dark: #f8f9fa;
+            --darker: #e9ecef;
+            --light: #0f0c29;
+            --gray: #adb5bd;
+            --ghibli-sky: #4cc9f0;
+            --ghibli-cloud: #caf0f8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            color: var(--light);
+            min-height: 100vh;
+            transition: var(--transition);
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .ghibli-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--ghibli-sky), var(--ghibli-cloud));
+            z-index: -2;
+            opacity: 0.1;
+            transition: var(--transition);
+        }
+
+        .cloud {
+            position: absolute;
+            background: var(--ghibli-cloud);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float 60s infinite linear;
+        }
+
+        .cloud:nth-child(1) {
+            width: 200px;
+            height: 60px;
+            top: 10%;
+            left: 5%;
+        }
+
+        .cloud:nth-child(2) {
+            width: 300px;
+            height: 90px;
+            top: 25%;
+            right: 10%;
+            animation-duration: 80s;
+        }
+
+        .cloud:nth-child(3) {
+            width: 250px;
+            height: 75px;
+            bottom: 20%;
+            left: 15%;
+            animation-duration: 100s;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        .chatbot-container {
+            width: 500px;
+            max-width: 100%;
+            height: 700px;
+            background: rgba(15, 12, 41, 0.9);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--neon-glow);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: rgba(10, 8, 29, 0.9);
+            border-bottom: 1px solid rgba(0, 195, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            box-shadow: var(--neon-glow);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            color: white;
+            background: rgba(0, 195, 255, 0.1);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+        }
+
+        .header-btn:hover {
+            background: rgba(0, 195, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+        }
+
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .hamburger-menu span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--primary);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        /* Three-line Menu Panel */
+        .menu-panel {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            background: rgba(15, 12, 41, 0.95);
+            border-radius: 10px;
+            padding: 10px 0;
+            box-shadow: var(--neon-glow);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            display: none;
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        .menu-panel.active {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light);
+            text-decoration: none;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 195, 255, 0.1);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .welcome-section {
+            padding: 40px 30px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .welcome-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .welcome-subtitle {
+            color: #a0a0ff;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .action-card {
+            background: rgba(30, 30, 60, 0.6);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            background: rgba(0, 195, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .action-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-description {
+            color: #b0b0ff;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .add-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 195, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 195, 255, 0.8);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: rgba(30, 30, 60, 0.9);
+            color: var(--light);
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .msg-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--light);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .msg-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: rgba(10, 10, 25, 0.9);
+            border-top: 1px solid rgba(0, 195, 255, 0.3);
+            display: none;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: rgba(0, 195, 255, 0.1);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 195, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 195, 255, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 15px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(0, 195, 255, 0.5);
+            background: rgba(5, 5, 15, 0.8);
+            color: var(--light);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .message-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.5);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: rgba(30, 30, 60, 0.9);
+            color: var(--light);
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: inline-block;
+        }
+
+        .typing-dots span {
+            animation: typing 1.4s infinite;
+            opacity: 0.6;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Voice Input Indicator */
+        .voice-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(0, 195, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(0.8); opacity: 1; }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 25, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 195, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 195, 255, 0.8);
+        }
+
+        .footer {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--dark);
+            color: var(--light);
+            border-radius: 8px;
+            box-shadow: var(--neon-glow);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .chatbot-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ghibli-style Background -->
+    <div class="ghibli-bg">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Three-line Menu Panel -->
+    <div class="menu-panel" id="menuPanel">
+        <a href="#" class="menu-item" id="newChatBtn">
+            <i class="fas fa-plus"></i>
+            <span>New Chat</span>
+        </a>
+        <a href="#" class="menu-item" id="deleteChatBtn">
+            <i class="fas fa-trash"></i>
+            <span>Delete Chat</span>
+        </a>
+        <a href="#" class="menu-item" id="themeToggleBtn">
+            <i class="fas fa-moon"></i>
+            <span>Dark Mode</span>
+        </a>
+        <a href="#" class="menu-item" id="voiceToggleBtn">
+            <i class="fas fa-microphone"></i>
+            <span>Voice Input</span>
+        </a>
+        <a href="#" class="menu-item" id="exportChatBtn">
+            <i class="fas fa-download"></i>
+            <span>Export Chat</span>
+        </a>
+        <a href="#" class="menu-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chat-header">
+            <div class="logo">
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">NovaGPT</div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="voiceBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="header-btn" id="settingsBtn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="welcome-section" id="welcomeSection">
+            <h1 class="welcome-title">What can I help with?</h1>
+            <p class="welcome-subtitle">Choose an option or ask anything</p>
+            
+            <div class="action-card" onclick="startChat('general')">
+                <div class="action-title">
+                    <i class="fas fa-comment"></i>
+                    Ask Anything
+                </div>
+                <div class="action-description">Start a conversation about any topic</div>
+            </div>
+            
+            <div class="action-card" onclick="startChat('creative')">
+                <div class="action-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Creative Ideas
+                </div>
+                <div class="action-description">Get help with creative projects</div>
+            </div>
+            
+            <div class="action-card" onclick="startChat('help')">
+                <div class="action-title">
+                    <i class="fas fa-question-circle"></i>
+                    Get Help
+                </div>
+                <div class="action-description">Find answers to your questions</div>
+            </div>
+            
+            <button class="add-button" onclick="startNewChat()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will appear here -->
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <span>NovaGPT is typing</span>
+            <span class="typing-dots">
+                <span>.</span><span>.</span><span>.</span>
+            </span>
+        </div>
+
+        <div class="voice-indicator" id="voiceIndicator">
+            <div class="pulse"></div>
+            <span>Listening...</span>
+        </div>
+        
+        <div class="chat-input-container" id="chatInput">
+            <div class="input-actions">
+                <button class="action-btn" id="imageGenBtn">
+                    <i class="fas fa-image"></i> Generate Image
+                </button>
+                <button class="action-btn" id="clearChatBtn">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type your message...">
+                <button class="send-btn" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            NovaGPT AI Assistant
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const menuPanel = document.getElementById('menuPanel');
+            const voiceBtn = document.getElementById('voiceBtn');
+            const voiceIndicator = document.getElementById('voiceIndicator');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatMessages = document.getElementById('chatMessages');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const welcomeSection = document.getElementById('welcomeSection');
+            const chatInput = document.getElementById('chatInput');
+            const notification = document.getElementById('notification');
+            
+            // Menu buttons
+            const newChatBtn = document.getElementById('newChatBtn');
+            const deleteChatBtn = document.getElementById('deleteChatBtn');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+            const exportChatBtn = document.getElementById('exportChatBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Action buttons
+            const imageGenBtn = document.getElementById('imageGenBtn');
+            const clearChatBtn = document.getElementById('clearChatBtn');
+
+            // App state
+            let isDarkMode = true;
+            let voiceInputEnabled = true;
+
+            // Show notification
+            function showNotification(message, type = 'info') {
+                notification.textContent = message;
+                notification.className = 'notification show';
+                
+                if (type === 'error') {
+                    notification.style.background = 'var(--accent)';
+                } else if (type === 'success') {
+                    notification.style.background = 'var(--success)';
+                } else {
+                    notification.style.background = 'var(--dark)';
+                }
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Menu Toggle
+            hamburgerMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menuPanel.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function() {
+                menuPanel.classList.remove('active');
+            });
+
+            // Menu Actions
+            newChatBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Start a new chat? Your current chat will be saved.")) {
+                    chatMessages.innerHTML = '';
+                    startChat('general');
+                    menuPanel.classList.remove('active');
+                    showNotification('New chat started');
+                }
+            });
+
+            deleteChatBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to delete this chat? This action cannot be undone.")) {
+                    chatMessages.innerHTML = '';
+                    startChat('general');
+                    menuPanel.classList.remove('active');
+                    showNotification('Chat deleted');
+                }
+            });
+
+            themeToggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                isDarkMode = !isDarkMode;
+                document.body.classList.toggle('light-mode');
+                
+                if (isDarkMode) {
+                    themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+                } else {
+                    themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+                }
+                
+                menuPanel.classList.remove('active');
+                showNotification(`Theme changed to ${isDarkMode ? 'dark' : 'light'} mode`);
+            });
+
+            voiceToggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                voiceInputEnabled = !voiceInputEnabled;
+                
+                voiceToggleBtn.innerHTML = voiceInputEnabled ? 
+                    '<i class="fas fa-microphone"></i><span>Voice Input</span>' : 
+                    '<i class="fas fa-microphone-slash"></i><span>Voice Input</span>';
+                
+                menuPanel.classList.remove('active');
+                showNotification(`Voice input ${voiceInputEnabled ? 'enabled' : 'disabled'}`);
+            });
+
+            exportChatBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showNotification('Chat exported successfully!');
+                menuPanel.classList.remove('active');
+            });
+
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showNotification('Logged out successfully');
+                menuPanel.classList.remove('active');
+            });
+
+            // Start Chat Functionality
+            window.startChat = function(type) {
+                welcomeSection.style.display = 'none';
+                chatMessages.style.display = 'flex';
+                chatInput.style.display = 'block';
+                
+                let welcomeMessage = "Hello! How can I help you today?";
+                
+                if (type === 'creative') {
+                    welcomeMessage = "Ready to get creative! What ideas are you working on?";
+                } else if (type === 'help') {
+                    welcomeMessage = "I'm here to help! What do you need assistance with?";
+                }
+                
+                addMessage(welcomeMessage, false);
+            };
+            
+            window.startNewChat = function() {
+                chatMessages.innerHTML = '';
+                startChat('general');
+            };
+            
+            function addMessage(text, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+                
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <span>${isUser ? 'You' : 'NovaGPT'}</span>
+                        <span>${timeString}</span>
+                    </div>
+                    ${text}
+                    <div class="message-actions">
+                        <button class="msg-btn copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                        <button class="msg-btn share-btn"><i class="fas fa-share"></i> Share</button>
+                        ${!isUser ? '<button class="msg-btn like-btn"><i class="fas fa-thumbs-up"></i> Like</button>' : ''}
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Add click events to message action buttons
+                messageDiv.querySelector('.copy-btn').addEventListener('click', function() {
+                    navigator.clipboard.writeText(text);
+                    showNotification('Message copied to clipboard!');
+                });
+                
+                messageDiv.querySelector('.share-btn').addEventListener('click', function() {
+                    showNotification('Share functionality would be implemented here!');
+                });
+                
+                if (!isUser) {
+                    messageDiv.querySelector('.like-btn').addEventListener('click', function() {
+                        this.innerHTML = '<i class="fas fa-thumbs-up"></i> Liked';
+                        this.style.background = 'rgba(0, 195, 255, 0.3)';
+                        showNotification('Thanks for the feedback!');
+                    });
+                }
+            }
+
+            // Send Message
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    messageInput.value = '';
+                    
+                    // Show typing indicator
+                    typingIndicator.style.display = 'block';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Simulate AI response after a delay
+                    setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                        const aiResponse = generateAIResponse(message);
+                        addMessage(aiResponse, false);
+                    }, 1000 + Math.random() * 1000);
+                }
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // AI Response Generation
+            function generateAIResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Keyword-based responses with regex patterns
+                const responses = [
+                    {
+                        pattern: /\b(hi|hello|hey|howdy|hola)\b/i,
+                        responses: [
+                            "Hello there! How can I assist you today?",
+                            "Hi! Nice to meet you. What can I do for you?",
+                            "Hey! How's your day going? I'm here to help with anything you need."
+                        ]
+                    },
+                    {
+                        pattern: /\b(how are you|how're you|how do you do)\b/i,
+                        responses: [
+                            "I'm functioning perfectly, thanks for asking! How about you?",
+                            "I'm just a bunch of code, but I'm doing great! How are you?",
+                            "All systems operational! How can I help you today?"
+                        ]
+                    },
+                    {
+                        pattern: /\b(weather|temperature|forecast)\b/i,
+                        responses: [
+                            "I don't have access to real-time weather data, but I hope it's pleasant where you are!",
+                            "For accurate weather information, I'd recommend checking a dedicated weather service.",
+                            "The weather in the digital realm is always perfect! How's the weather in your location?"
+                        ]
+                    },
+                    {
+                        pattern: /\b(time|date|clock|calendar)\b/i,
+                        responses: [
+                            `The current time is ${new Date().toLocaleTimeString()}.`,
+                            `Today's date is ${new Date().toLocaleDateString()}.`,
+                            `It's ${new Date().toLocaleString()} right now.`
+                        ]
+                    },
+                    {
+                        pattern: /\b(thank you|thanks|thx|ty)\b/i,
+                        responses: [
+                            "You're welcome! Is there anything else I can help with?",
+                            "Glad I could help! Feel free to ask if you need anything else.",
+                            "No problem! Happy to assist."
+                        ]
+                    },
+                    {
+                        pattern: /\b(what can you do|help|commands|features)\b/i,
+                        responses: [
+                            "I can chat with you, tell you the time, generate images, and respond to voice commands!",
+                            "I'm your AI assistant with multiple capabilities. You can ask me questions or generate images!",
+                            "My capabilities include: answering questions, generating images, and voice interactions."
+                        ]
+                    },
+                    {
+                        pattern: /\b(bye|goodbye|see ya|farewell)\b/i,
+                        responses: [
+                            "Goodbye! Feel free to come back anytime!",
+                            "See you later! It was nice chatting with you.",
+                            "Farewell! Don't hesitate to return if you have more questions."
+                        ]
+                    }
+                ];
+
+                // Default responses if no keywords match
+                const defaultResponses = [
+                    "That's interesting! Could you tell me more about that?",
+                    "I understand what you're saying. Let me think about how best to respond.",
+                    "I appreciate you sharing that with me. What else would you like to discuss?",
+                    "I'm continuously learning, so I'll make sure to remember that for our future conversations."
+                ];
+
+                let response = null;
+                
+                // Check for matching patterns
+                for (const item of responses) {
+                    if (item.pattern.test(lowerMessage)) {
+                        response = item.responses[Math.floor(Math.random() * item.responses.length)];
+                        break;
+                    }
+                }
+                
+                // If no match found, use default response
+                if (!response) {
+                    response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+                }
+                
+                return response;
+            }
+
+            // Voice Input
+            voiceBtn.addEventListener('click', function() {
+                if (!voiceInputEnabled) {
+                    showNotification('Voice input is disabled. Enable it in the menu.', 'error');
+                    return;
+                }
+                
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    showNotification("Your browser doesn't support speech recognition. Try Chrome or Edge.", 'error');
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.start();
+                
+                voiceIndicator.style.display = 'flex';
+                voiceBtn.style.background = 'rgba(255, 107, 107, 0.2)';
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    messageInput.value = transcript;
+                    voiceIndicator.style.display = 'none';
+                    voiceBtn.style.background = '';
+                    
+                    // Auto-send short messages
+                    if (transcript.split(' ').length <= 10) {
+                        sendMessage();
+                    }
+                };
+                
+                recognition.onerror = function() {
+                    voiceIndicator.style.display = 'none';
+                    voiceBtn.style.background = '';
+                    showNotification('Voice recognition error. Please try again.', 'error');
+                };
+                
+                recognition.onend = function() {
+                    voiceIndicator.style.display = 'none';
+                    voiceBtn.style.background = '';
+                };
+            });
+
+            // Image Generation
+            imageGenBtn.addEventListener('click', function() {
+                const prompt = prompt("Enter a description for the image you want to generate:");
+                if (prompt) {
+                    addMessage(`Generate an image: "${prompt}"`, true);
+                    
+                    // Show typing indicator
+                    typingIndicator.style.display = 'block';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Simulate image generation after a delay
+                    setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                        
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('message', 'bot-message');
+                        
+                        const now = new Date();
+                        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-header">
+                                <span>NovaGPT</span>
+                                <span>${timeString}</span>
+                            </div>
+                            Here's the image you requested based on: "${prompt}"
+                            <div class="generated-image-container" style="margin: 15px 0;">
+                                <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9d4edd, #4cc9f0); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-style: italic;">
+                                    Generated Image: ${prompt}
+                                </div>
+                            </div>
+                            <div class="message-actions">
+                                <button class="msg-btn download-btn"><i class="fas fa-download"></i> Save</button>
+                                <button class="msg-btn share-btn"><i class="fas fa-share"></i> Share</button>
+                                <button class="msg-btn regenerate-btn"><i class="fas fa-sync"></i> Regenerate</button>
+                            </div>
+                        `;
+                        
+                        chatMessages.appendChild(messageDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        
+                        // Add event listeners to image action buttons
+                        messageDiv.querySelector('.download-btn').addEventListener('click', function() {
+                            showNotification('Image saved to your device!');
+                        });
+                        
+                        messageDiv.querySelector('.share-btn').addEventListener('click', function() {
+                            showNotification('Share dialog would open here!');
+                        });
+                        
+                        messageDiv.querySelector('.regenerate-btn').addEventListener('click', function() {
+                            showNotification('Regenerating image...');
+                        });
+                    }, 2000);
+                }
+            });
+
+            // Clear Chat
+            clearChatBtn.addEventListener('click', function() {
+                if (confirm("Are you sure you want to clear the chat history?")) {
+                    chatMessages.innerHTML = '';
+                    addMessage("Chat history cleared. How can I help you now?", false);
+                    showNotification('Chat history cleared');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
